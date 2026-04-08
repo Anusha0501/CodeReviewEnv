@@ -21,7 +21,7 @@ action_space:
       description: "Whether a bug was detected"
     bug_type:
       type: "enum"
-      values: ["syntax", "logic", "security", "performance", null]
+      values: ["syntax", "logic", "security", "performance"]
       description: "Type of bug detected"
 
 observation_space:
