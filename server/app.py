@@ -61,3 +61,7 @@ def main():
             raise HTTPException(status_code=400, detail=str(e))
 
     return app
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("server.app:main", host="0.0.0.0", port=7860)
