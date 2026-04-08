@@ -1,6 +1,6 @@
 """FastAPI server for CodeReviewEnv Hugging Face Spaces deployment"""
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any, Optional, List
@@ -91,18 +91,27 @@ async def reset_environment_get(task_id: Optional[str] = None, difficulty: Optio
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.post("/reset", response_model=ResetResponse)
-async def reset_environment(request: ResetRequest):
+@app.post("/reset")
+async def reset_environment(request: Request):
     """Reset the environment and return initial observation"""
     try:
-        env = CodeReviewEnv(task_id=request.task_id, difficulty=request.difficulty)
-        observation = env.reset(task_id=request.task_id, difficulty=request.difficulty)
-        task_info = env.get_task_info()
+        # Try to parse JSON body, handle empty body gracefully
+        try:
+            data = await request.json()
+        except:
+            data = {}
         
-        return ResetResponse(
-            observation=observation.dict(),
-            task_info=task_info
-        )
+        # Extract task_id safely
+        task_id = data.get("task_id") if isinstance(data, dict) else None
+        difficulty = data.get("difficulty") if isinstance(data, dict) else None
+        
+        # Create environment and reset
+        env = CodeReviewEnv(task_id=task_id, difficulty=difficulty)
+        observation = env.reset(task_id=task_id, difficulty=difficulty)
+        
+        # Return observation as JSON (dict, not object)
+        return observation.dict() if hasattr(observation, "dict") else observation
+        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
