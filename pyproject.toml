@@ -1,0 +1,17 @@
+[project]
+name = "codereviewenv"
+version = "0.1.0"
+description = "OpenEnv Code Review Environment"
+authors = [
+    { name = "Anusha" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "openai"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
