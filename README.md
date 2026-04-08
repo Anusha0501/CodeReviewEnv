@@ -1,3 +1,13 @@
+---
+title: CodeReviewEnv
+emoji: 
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_file: server.py
+pinned: false
+---
+
 # CodeReviewEnv: AI-Powered Code Review & Bug Detection Environment
 
 A production-grade OpenEnv environment that simulates a developer reviewing code diffs and identifying bugs, issues, and improvements using AI.

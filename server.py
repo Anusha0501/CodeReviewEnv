@@ -76,6 +76,21 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "environment": "CodeReviewEnv"}
 
+@app.get("/reset", response_model=ResetResponse)
+async def reset_environment_get(task_id: Optional[str] = None, difficulty: Optional[str] = None):
+    """Reset the environment and return initial observation (GET method)"""
+    try:
+        env = CodeReviewEnv(task_id=task_id, difficulty=difficulty)
+        observation = env.reset(task_id=task_id, difficulty=difficulty)
+        task_info = env.get_task_info()
+        
+        return ResetResponse(
+            observation=observation.dict(),
+            task_info=task_info
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.post("/reset", response_model=ResetResponse)
 async def reset_environment(request: ResetRequest):
     """Reset the environment and return initial observation"""
