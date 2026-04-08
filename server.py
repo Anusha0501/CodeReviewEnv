@@ -54,11 +54,12 @@ class StepResponse(BaseModel):
 class TaskListResponse(BaseModel):
     tasks: Dict[str, Dict[str, Any]]
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the environment on startup"""
+def get_env():
+    """Get or initialize the environment"""
     global env
-    env = CodeReviewEnv()
+    if env is None:
+        env = CodeReviewEnv()
+    return env
 
 @app.get("/")
 async def root():
@@ -78,8 +79,6 @@ async def health_check():
 @app.post("/reset", response_model=ResetResponse)
 async def reset_environment(request: ResetRequest):
     """Reset the environment and return initial observation"""
-    global env
-    
     try:
         env = CodeReviewEnv(task_id=request.task_id, difficulty=request.difficulty)
         observation = env.reset(task_id=request.task_id, difficulty=request.difficulty)
