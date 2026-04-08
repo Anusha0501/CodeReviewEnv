@@ -1,0 +1,129 @@
+# OpenEnv Configuration for CodeReviewEnv
+name: "CodeReviewEnv"
+version: "1.0.0"
+description: "AI-Powered Code Review & Bug Detection Environment"
+
+# Environment specification
+environment:
+  module: "env"
+  class: "CodeReviewEnv"
+  entry_point: "env:CodeReviewEnv"
+
+# Action and observation spaces
+action_space:
+  type: "dict"
+  fields:
+    reviewer_comment:
+      type: "string"
+      description: "Comment about the code"
+    bug_detected:
+      type: "boolean"
+      description: "Whether a bug was detected"
+    bug_type:
+      type: "enum"
+      values: ["syntax", "logic", "security", "performance", null]
+      description: "Type of bug detected"
+
+observation_space:
+  type: "dict"
+  fields:
+    code_diff:
+      type: "string"
+      description: "Git-style diff of the code changes"
+    file_name:
+      type: "string"
+      description: "Name of the file being reviewed"
+    language:
+      type: "string"
+      description: "Programming language"
+    context:
+      type: "string"
+      description: "Additional context about the code"
+    previous_comments:
+      type: "array"
+      items:
+        type: "string"
+      description: "Previous reviewer comments"
+    step_count:
+      type: "integer"
+      description: "Current step number"
+
+# Reward configuration
+reward:
+  type: "dict"
+  fields:
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Total reward score"
+    detection_reward:
+      type: "float"
+      description: "Reward for bug detection"
+    classification_reward:
+      type: "float"
+      description: "Reward for correct classification"
+    explanation_reward:
+      type: "float"
+      description: "Reward for good explanation"
+    false_positive_penalty:
+      type: "float"
+      description: "Penalty for false positives"
+
+# Environment configuration
+config:
+  max_steps: 5
+  reward_threshold: 0.8
+  
+# Task configurations
+tasks:
+  easy_off_by_one:
+    difficulty: "easy"
+    description: "Off-by-one error in loop"
+    file_name: "math_utils.py"
+    language: "python"
+    
+  medium_null_check:
+    difficulty: "medium"
+    description: "Missing null check"
+    file_name: "user_service.py"
+    language: "python"
+    
+  hard_sql_injection:
+    difficulty: "hard"
+    description: "SQL injection vulnerability"
+    file_name: "database.py"
+    language: "python"
+    
+  clean_easy:
+    difficulty: "easy"
+    description: "Clean code refactoring"
+    file_name: "calculator.py"
+    language: "python"
+    
+  clean_medium:
+    difficulty: "medium"
+    description: "Clean code improvement"
+    file_name: "validators.py"
+    language: "python"
+
+# Evaluation configuration
+evaluation:
+  episodes: 10
+  metrics:
+    - "success_rate"
+    - "average_score"
+    - "average_steps"
+  
+# Server configuration for deployment
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  
+# Dependencies
+dependencies:
+  - "pydantic>=2.0.0"
+  - "fastapi>=0.104.0"
+  - "uvicorn>=0.24.0"
+  - "openai>=1.0.0"
