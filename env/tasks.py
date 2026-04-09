@@ -40,9 +40,10 @@ class TaskGrader:
         )
         
         # Calculate total score
-        total_score = max(0.0, min(1.0, 
-            detection_reward + classification_reward + explanation_reward - false_positive_penalty
-        ))
+        total_score = detection_reward + classification_reward + explanation_reward - false_positive_penalty
+        
+        # Clamp score to STRICT range (0, 1) - never 0.0 or 1.0
+        total_score = max(0.05, min(total_score, 0.95))
         
         return Reward(
             score=total_score,
