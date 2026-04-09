@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from env import CodeReviewEnv
 
-def main():
-    """Main function that creates and returns the FastAPI app"""
+def create_app():
+    """Create FastAPI app instance"""
     app = FastAPI(
         title="CodeReviewEnv API",
         description="AI-Powered Code Review & Bug Detection Environment",
@@ -62,6 +62,13 @@ def main():
 
     return app
 
+# Required for FastAPI / uvicorn
+app = create_app()
+
+# Required for OpenEnv validator
+def main():
+    return app
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server.app:main", host="0.0.0.0", port=7860)
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
