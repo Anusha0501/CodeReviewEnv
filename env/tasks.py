@@ -43,7 +43,14 @@ class TaskGrader:
         total_score = detection_reward + classification_reward + explanation_reward - false_positive_penalty
         
         # Clamp score to STRICT range (0, 1) - never 0.0 or 1.0
-        total_score = max(0.05, min(total_score, 0.95))
+        # Use smaller bounds to ensure strict compliance with OpenEnv validator
+        total_score = max(0.001, min(total_score, 0.999))
+        
+        # Additional safeguard: ensure we never return exactly 0.0 or 1.0 due to floating point precision
+        if total_score <= 0.001:
+            total_score = 0.001
+        elif total_score >= 0.999:
+            total_score = 0.999
         
         return Reward(
             score=total_score,
