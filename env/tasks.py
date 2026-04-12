@@ -11,35 +11,28 @@ class TaskGrader:
 
     @staticmethod
     def grade_action(action: Action, task: TaskConfig, step: int) -> Reward:
-        """Grade an action against the task ground truth with strict open-interval scoring."""
-        score = 0.1  # base score (never 0)
+        """Grade an action against the task ground truth with deterministic open-interval scoring."""
+        score = 0.1
 
         correct_detection = action.bug_detected == task.has_bug
         correct_bug_type = bool(action.bug_detected and task.has_bug and action.bug_type == task.bug_type)
+        false_positive = bool((task.has_bug is False) and (action.bug_detected is True))
 
-        explanation_raw = TaskGrader._evaluate_explanation(action.reviewer_comment, task, action)
-        explanation_quality = explanation_raw >= 0.15
-
-        false_positive = bool(not task.has_bug and action.bug_detected)
+        explanation_reward = TaskGrader._evaluate_explanation(action.reviewer_comment)
 
         if correct_detection:
             score += 0.3
         if correct_bug_type:
             score += 0.2
-        if explanation_quality:
-            score += 0.2
+
+        score += explanation_reward
+
+        if not task.has_bug and not action.bug_detected:
+            score += 0.3
 
         if false_positive:
             score -= 0.2
 
-        # Clean task handling
-        if not task.has_bug and not action.bug_detected:
-            score += 0.3
-
-        # Ensure variability to avoid constant or binary scoring
-        score += random.uniform(0.01, 0.02)
-
-        # STRICT CLAMP to open interval
         if score <= 0:
             score = 0.05
         elif score >= 1:
@@ -49,7 +42,6 @@ class TaskGrader:
 
         detection_reward = 0.3 if correct_detection else 0.0
         classification_reward = 0.2 if correct_bug_type else 0.0
-        explanation_reward = 0.2 if explanation_quality else 0.0
         false_positive_penalty = 0.2 if false_positive else 0.0
 
         return Reward(
@@ -61,26 +53,24 @@ class TaskGrader:
             details={
                 "correct_detection": correct_detection,
                 "correct_classification": correct_bug_type if task.has_bug else None,
-                "explanation_quality": explanation_quality,
-                "explanation_raw": float(explanation_raw),
+                "comment_word_count": len(action.reviewer_comment.split()),
                 "false_positive": false_positive,
                 "step": step,
             },
         )
 
     @staticmethod
-    def _evaluate_explanation(comment: str, task: TaskConfig, action: Action) -> float:
-        """Evaluate the quality of the reviewer's explanation."""
-        length_score = 0.1 if 20 <= len(comment) <= 200 else 0.0
+    def _evaluate_explanation(comment: str) -> float:
+        """Evaluate explanation quality deterministically using comment word count."""
+        comment_length = len(comment.split())
 
-        technical_terms = ["bug", "issue", "problem", "error", "fix", "solution", "improve"]
-        technical_score = 0.1 if any(term in comment.lower() for term in technical_terms) else 0.0
-
-        context_score = 0.1 if action.bug_detected and any(
-            word in comment.lower() for word in ["line", "function", "variable"]
-        ) else 0.0
-
-        return length_score + technical_score + context_score
+        if comment_length > 20:
+            return 0.3
+        if comment_length > 10:
+            return 0.2
+        if comment_length > 5:
+            return 0.1
+        return float(0)
 
 
 # Task definitions
