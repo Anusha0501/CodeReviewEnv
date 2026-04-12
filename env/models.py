@@ -2,7 +2,7 @@
 
 from enum import Enum
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class BugType(str, Enum):
@@ -48,6 +48,14 @@ class Reward(BaseModel):
     explanation_reward: float = Field(default=0.0, description="Reward for good explanation")
     false_positive_penalty: float = Field(default=0.0, description="Penalty for false positives")
     details: Dict[str, Any] = Field(default_factory=dict, description="Additional reward details")
+
+    @validator("score")
+    def validate_open_interval_score(cls, value: float) -> float:
+        score = float(value)
+        if not (0.0 < score < 1.0):
+            raise ValueError("score must satisfy 0.0 < score < 1.0")
+        return score
+
 
 
 class TaskConfig(BaseModel):
