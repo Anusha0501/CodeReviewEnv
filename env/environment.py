@@ -82,7 +82,7 @@ class CodeReviewEnv:
             raise RuntimeError("Environment not initialized or already finished. Call reset() first.")
         
         # Grade the action
-        reward = self.grader.grade_action(action, self._state.current_task, self._state.step_count)
+        reward = TaskGrader.grade_action(action, self._state.current_task, self._state.step_count)
         
         # Update state
         self._state.step_count += 1
@@ -94,7 +94,7 @@ class CodeReviewEnv:
         })
         
         # Check if done
-        done = self._state.step_count >= self._state.current_task.max_steps or reward.score >= 0.8
+        done = self._state.step_count >= self._state.current_task.max_steps
         self._state.done = done
         
         # Get observation
