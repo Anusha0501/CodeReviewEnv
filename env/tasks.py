@@ -27,6 +27,15 @@ class TaskGrader:
 
         score += explanation_reward
 
+        # Add deterministic variation based on comment keywords
+        comment = action.reviewer_comment.lower()
+        if "error" in comment:
+            score += 0.03
+        if "fix" in comment:
+            score += 0.02
+        if "line" in comment:
+            score += 0.02
+
         if not task.has_bug and not action.bug_detected:
             score += 0.3
 
@@ -40,9 +49,9 @@ class TaskGrader:
 
         score = max(0.05, min(score, 0.95))
 
-        detection_reward = 0.3 if correct_detection else 0.0
-        classification_reward = 0.2 if correct_bug_type else 0.0
-        false_positive_penalty = 0.2 if false_positive else 0.0
+        detection_reward = 0.3 if correct_detection else 0.05
+        classification_reward = 0.2 if correct_bug_type else 0.05
+        false_positive_penalty = 0.2 if false_positive else 0.05
 
         return Reward(
             score=float(score),
@@ -70,7 +79,7 @@ class TaskGrader:
             return 0.2
         if comment_length > 5:
             return 0.1
-        return float(0)
+        return 0.05
 
 
 # Task definitions
