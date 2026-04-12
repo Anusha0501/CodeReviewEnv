@@ -1,5 +1,6 @@
 """Task definitions and graders for CodeReviewEnv"""
 
+import random
 import re
 from typing import Dict, List, Optional
 from .models import TaskConfig, Action, Reward, BugType
