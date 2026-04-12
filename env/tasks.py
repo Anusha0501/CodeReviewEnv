@@ -41,6 +41,12 @@ class TaskGrader:
         if false_positive:
             score -= 0.2
 
+        # Prevent identical low scores
+        comment = action.reviewer_comment.lower()
+        word_count = len(comment.split())
+
+        score += min(word_count * 0.002, 0.03)
+
         if score <= 0:
             score = 0.05
         elif score >= 1:
