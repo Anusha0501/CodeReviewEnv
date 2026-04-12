@@ -48,9 +48,9 @@ class TaskGrader:
 
         score = max(0.05, min(score, 0.95))
 
-        detection_reward = 0.3 if correct_detection else float(0)
-        classification_reward = 0.2 if correct_bug_type else float(0)
-        false_positive_penalty = 0.2 if false_positive else float(0)
+        detection_reward = 0.3 if correct_detection else 0.0
+        classification_reward = 0.2 if correct_bug_type else 0.0
+        false_positive_penalty = 0.2 if false_positive else 0.0
 
         return Reward(
             score=float(score),
